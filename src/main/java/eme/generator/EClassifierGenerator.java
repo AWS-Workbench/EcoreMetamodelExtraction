@@ -97,7 +97,7 @@ public class EClassifierGenerator {
         } else if (type.getClass() == ExtractedClass.class) { // build class:
             EClass eClass = generateEClass(type, ((ExtractedClass) type).isAbstract(), false);
             addSuperClass((ExtractedClass) type, eClass); // IMPORTANT: needs to be called after type params are built
-            eClassifier = eClass;
+            eClassifier = eClass; // this place needs attention -- Raman
         } else if (type.getClass() == ExtractedEnum.class) { // build enum:
             eClassifier = generateEEnum((ExtractedEnum) type);
         }
@@ -150,7 +150,7 @@ public class EClassifierGenerator {
         } else if (model.contains(superTypeName)) { // if is not created yet
             ExtractedType extractedType = model.getType(superTypeName);
             if (selector.allowsGenerating(extractedType)) { // is super type can be generated
-                generateSuperRelation(eClass, (EClass) generateEClassifier(extractedType), superType);
+                generateSuperRelation(eClass, (EClass) generateEClassifier(extractedType), superType); // Modified by Raman
             }
         } else { // is external type
             logger.warn("Could not use external type as super type: " + superTypeName);
