@@ -96,8 +96,11 @@ public class EClassifierGenerator {
             eClassifier = generateEClass(type, true, true);
         } else if (type.getClass() == ExtractedClass.class) { // build class:
             EClass eClass = generateEClass(type, ((ExtractedClass) type).isAbstract(), false);
+            eClassifier = eClass; 
+            eClassifier.setName(type.getName()); // set name
+            eClassifierMap.put(fullName, eClassifier); // store created classifier
             addSuperClass((ExtractedClass) type, eClass); // IMPORTANT: needs to be called after type params are built
-            eClassifier = eClass; // this place needs attention -- Raman
+           // this place needs attention -- Raman
         } else if (type.getClass() == ExtractedEnum.class) { // build enum:
             eClassifier = generateEEnum((ExtractedEnum) type);
         }
