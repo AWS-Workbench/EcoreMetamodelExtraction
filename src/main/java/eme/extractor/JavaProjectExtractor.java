@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
 import eme.model.ExtractedPackage;
+import eme.model.ExtractedType;
 import eme.model.IntermediateModel;
 
 /**
@@ -58,7 +59,9 @@ public class JavaProjectExtractor {
             reportProgress(fragments.size());
             for (ICompilationUnit unit : fragment.getCompilationUnits()) { // get compilation units
                 for (IType type : unit.getAllTypes()) { // for all types
-                    currentModel.addTo(typeExtractor.extractType(type), currentPackage);
+                	ExtractedType eType = typeExtractor.extractType(type);
+                	if(eType != null)
+                		currentModel.addTo(eType, currentPackage);
                 }
             }
         }

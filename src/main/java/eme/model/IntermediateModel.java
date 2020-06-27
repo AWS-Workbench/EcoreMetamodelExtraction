@@ -206,7 +206,8 @@ public class IntermediateModel {
      */
     private ExtractedType getTypeFrom(String fullName, Set<ExtractedType> typeSet) {
         for (ExtractedType type : typeSet) { // for all packages
-            if (type.getFullName().equals(fullName)) { // if parent
+        	
+            if (type != null && type.getFullName().equals(fullName)) { // if parent
                 return type; // can only have on parent
             }
         }

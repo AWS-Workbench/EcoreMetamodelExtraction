@@ -15,7 +15,18 @@ public class ExtractedParameter extends ExtractedVariable {
      * "char".
      * @param arrayDimension is the amount of array dimensions, should be 0 if it is not an array.
      */
+	
+	private String fullTypeName;
     public ExtractedParameter(String identifier, String fullTypeName, int arrayDimension) {
         super(identifier, fullTypeName, arrayDimension);
+        this.fullTypeName = fullTypeName;
+        
     }
+    
+    public String getFullTypeName()
+    {
+    	return fullTypeName;
+    }
+    
+    
 }
