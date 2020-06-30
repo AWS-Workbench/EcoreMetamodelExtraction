@@ -58,8 +58,8 @@ public class EMemberGenerator {
 	 */
 	public void addFields(ExtractedType type, EClass eClass) {
 		for (ExtractedField field : type.getFields()) { // for every field
-			// if (selector.allowsGenerating(field)) { // if it is selected
-			System.out.println("Field added :" + field.getIdentifier() + " " + field.getFullType());
+			// if (selector.allowsGenerating(field)) { // if it is selected changed by Raman
+			//System.out.println("Field added :" + field.getIdentifier() + " " + field.getFullType());
 			addField(field, eClass); // add to EClass by creating an Ecore representation
 			// }
 		}
@@ -118,6 +118,8 @@ public class EMemberGenerator {
 		ExtractedDataType dataType = getRelevantDataType(field);
 		EStructuralFeature representation = createFieldRepresentation(dataType);
 		representation.setName(field.getIdentifier()); // set name
+		if(field.getLiteralValue() != null)
+			representation.setDefaultValueLiteral(field.getLiteralValue());
 		representation.setChangeable(!(field.isFinal() && selector.allowsUnchangeable())); // make unchangeable if final
 		setUpperBound(representation, field);
 		typeGenerator.addDataType(representation, dataType, new TypeParameterSource(eClass)); // add type to attribute

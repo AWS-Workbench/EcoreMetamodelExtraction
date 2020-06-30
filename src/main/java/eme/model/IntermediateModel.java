@@ -70,9 +70,7 @@ public class IntermediateModel {
      * @param parent is the parent {@link ExtractedPackage}.
      */
     public void addTo(ExtractedType type, ExtractedPackage parent) {
-        if (!type.getParentName().contains(parent.getFullName())) {
-            throw new IllegalArgumentException("Invalid parent declaration in " + type + " to " + parent);
-        } else if (types.add(type)) { // add class to list of classes.
+        if (types.add(type)) { // add class to list of classes.
             parent.add(type);
         }
     }
@@ -187,7 +185,7 @@ public class IntermediateModel {
      * subpackages and all the content of every subpackage.
      */
     public void sort() {
-        rootPackage.sort();
+       // rootPackage.sort();
     }
 
     @Override

@@ -83,15 +83,25 @@ public class JavaTypeExtractor {
 		ExtractedType extractedType = null;
 		if (type.isClass()) {
 			extractedType = extractClass(type); // create class
-			if (!extractedType.getFullName().contains("Builder"))
+			if (!extractedType.getFullName().contains("Builder") || extractedType.getName().startsWith("Cfn"))
 				return null;
 
+			extractOuterType(type, extractedType); // extract outer type name
+			String outerType = extractedType.getOuterType();
+			//System.out.println("OOO:"+outerType);
+			if (outerType != null && outerType.contains("Cfn")) {
+				//System.out.println("OOO Caught:"+outerType);
+				return null;
+			}
+
+		} else if (type.isEnum()) {
+			extractedType = extractEnum(type); // create enum
 		} else {
 			return null;
 		}
-		extractOuterType(type, extractedType); // extract outer type name
+		
 		extractedType.setTypeParameters(dataTypeExtractor.extractTypeParameters(type.getTypeParameters(), type));
-		//memberExtractor.extractFields(type, extractedType); // extract attribute
+		// memberExtractor.extractFields(type, extractedType); // extract attribute
 		memberExtractor.extractMethods(type, extractedType); // extract methods
 		// for (String signature : type.getSuperInterfaceTypeSignatures()) {
 		// extractedType.addInterface(dataTypeExtractor.extractDataType(signature,

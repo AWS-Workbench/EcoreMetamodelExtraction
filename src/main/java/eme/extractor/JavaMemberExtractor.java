@@ -72,49 +72,85 @@ public class JavaMemberExtractor {
 	 */
 	public void extractMethods(IType type, ExtractedType extractedType) throws JavaModelException {
 		ExtractedMethod extractedMethod;
-		System.out.println(extractedType.getName());
+		// System.out.println(extractedType.getName());
 		String methodName; // name of the extracted method
 		for (IMethod method : type.getMethods()) { // for every method
 			ExtractedField extractedField = null;
 			methodName = getName(type) + "." + method.getElementName(); // build name
 			extractedMethod = new ExtractedMethod(methodName, dataTypeExtractor.extractReturnType(method));
-
-			
 			extractModifiers(method, extractedMethod);
-			if (extractedMethod.isStatic() || extractedMethod.getMethodType() == MethodType.CONSTRUCTOR) {
-				System.out.println(extractedMethod.getName());
+			if (extractedMethod.isStatic() || extractedMethod.getMethodType() == MethodType.CONSTRUCTOR)
 				continue;
-			}
-				
+
 			ITypeParameter[] typeParameters = method.getTypeParameters();
 			extractedMethod.setTypeParameters(dataTypeExtractor.extractTypeParameters(typeParameters, type));
 			for (ILocalVariable parameter : method.getParameters()) { // extract parameters:
 				ExtractedParameter params = dataTypeExtractor.extractParameter(parameter, method);
 				extractedMethod.addParameter(params);
-				if (extractedField == null) {
-					extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
-					extractedField.setModifier(AccessLevelModifier.PUBLIC);
-					extractedField.setFinal(false);
-					extractedField.setStatic(false);
-					//extractedField.setModifier(getModifier(field));
 
+				IType paramType = type.getJavaProject().findType(params.getFullTypeName());
+
+				System.out.println(params.getFullTypeName());
+				if (paramType != null) {
+					if (extractedField == null
+							&& (params.getFullTypeName().startsWith("java.lang") || paramType.isEnum())) {
+						extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
+						extractedField.setModifier(AccessLevelModifier.PUBLIC);
+						extractedField.setFinal(false);
+						extractedField.setStatic(false);
+
+					}
+				} else {
+					if (extractedField == null && params.getFullTypeName().startsWith("java.lang")) {
+						extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
+						extractedField.setModifier(AccessLevelModifier.PUBLIC);
+						extractedField.setFinal(false);
+						extractedField.setStatic(false);
+
+					}
 				}
 
 			}
 			for (String exception : method.getExceptionTypes()) { // extract throw declarations:
 				extractedMethod.addThrowsDeclaration(dataTypeExtractor.extractDataType(exception, type));
 			}
-			
-			//extractedType.addMethod(extractedMethod); 
-			//System.out.println("Method: " + extractedMethod.getName() );
-			if (extractedField != null) {
-				System.out.println("Field: " + extractedField.getIdentifier() + " " + extractedField.getFullType());
+
+			// extractedType.addMethod(extractedMethod); Not needed for now.
+			if (extractedField != null)
 				extractedType.addField(extractedField);
-			}
-			else
-				System.out.println("Extractedfield was null: "+ extractedMethod.getName() );
-			
+
 		}
+		// System.out.println("Outer type:"+extractedType.getOuterType());
+		extractedType.addField(getClassNameField(extractedType));
+		extractedType.addField(getVarNameField());
+		extractedType.addField(getIdentifierField());
+		extractedType.addField(getCodeField());
+
+	}
+
+	private ExtractedField getCodeField() {
+		// TODO Auto-generated method stub
+		ExtractedField codeField = new ExtractedField("additionalCode", "java.lang.String", 0);
+		return codeField;
+	}
+
+	private ExtractedField getVarNameField() {
+		// TODO Auto-generated method stub
+		ExtractedField varNameField = new ExtractedField("varName", "java.lang.String", 0);
+		return varNameField;
+	}
+
+	private ExtractedField getIdentifierField() {
+		// TODO Auto-generated method stub
+		ExtractedField idField = new ExtractedField("identifier", "java.lang.String", 0);
+		return idField;
+	}
+
+	private ExtractedField getClassNameField(ExtractedType extractedType) {
+		// TODO Auto-generated method stub
+		ExtractedField classNameField = new ExtractedField("generatedClassName", "java.lang.String", 0);
+		classNameField.setLiteralValue(extractedType.getOuterType());
+		return classNameField;
 	}
 
 	/**

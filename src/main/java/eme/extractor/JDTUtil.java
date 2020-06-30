@@ -50,7 +50,12 @@ public final class JDTUtil {
      * @see eme.generator.saving.AbstractSavingStrategy#filePath()
      */
     public static String getName(IType type) {
-        return type.getFullyQualifiedName('.');
+    	String fullName = type.getFullyQualifiedName('.');
+    	if(fullName.endsWith("Builder")) {
+    		int i = fullName.lastIndexOf('.');
+    		fullName = fullName.substring(0, i) + fullName.substring(i+1);
+    	}
+        return fullName;
     }
 
     /**
