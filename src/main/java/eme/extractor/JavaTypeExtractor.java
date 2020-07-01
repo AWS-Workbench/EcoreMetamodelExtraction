@@ -21,6 +21,7 @@ import eme.model.ExtractedEnumConstant;
 import eme.model.ExtractedInterface;
 import eme.model.ExtractedType;
 import eme.model.IntermediateModel;
+import eme.model.datatypes.ExtractedField;
 
 /**
  * Extractor class for Java types (classes, interfaces, enumerations). This
@@ -88,9 +89,9 @@ public class JavaTypeExtractor {
 
 			extractOuterType(type, extractedType); // extract outer type name
 			String outerType = extractedType.getOuterType();
-			//System.out.println("OOO:"+outerType);
+			// System.out.println("OOO:"+outerType);
 			if (outerType != null && outerType.contains("Cfn")) {
-				//System.out.println("OOO Caught:"+outerType);
+				// System.out.println("OOO Caught:"+outerType);
 				return null;
 			}
 
@@ -99,7 +100,7 @@ public class JavaTypeExtractor {
 		} else {
 			return null;
 		}
-		
+
 		extractedType.setTypeParameters(dataTypeExtractor.extractTypeParameters(type.getTypeParameters(), type));
 		// memberExtractor.extractFields(type, extractedType); // extract attribute
 		memberExtractor.extractMethods(type, extractedType); // extract methods
@@ -147,7 +148,15 @@ public class JavaTypeExtractor {
 				newEnum.addConstant(new ExtractedEnumConstant(field.getElementName())); // add to enum
 			}
 		}
+		newEnum.addField(getClassNameField(newEnum));
 		return newEnum;
+	}
+
+	private ExtractedField getClassNameField(ExtractedEnum extractedType) {
+		// TODO Auto-generated method stub
+		ExtractedField classNameField = new ExtractedField("generatedClassName", "java.lang.String", 0);
+		classNameField.setLiteralValue(extractedType.getFullName());
+		return classNameField;
 	}
 
 	/**
