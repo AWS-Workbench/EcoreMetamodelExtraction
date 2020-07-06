@@ -90,14 +90,19 @@ public class JavaMemberExtractor {
 
 				IType paramType = type.getJavaProject().findType(params.getFullTypeName());
 
-				System.out.println(params.getFullTypeName());
+				
 				if (paramType != null) {
-					if (extractedField == null
-							&& (params.getFullTypeName().startsWith("java.lang") || paramType.isEnum())) {
-						extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
-						extractedField.setModifier(AccessLevelModifier.PUBLIC);
-						extractedField.setFinal(false);
-						extractedField.setStatic(false);
+					if (extractedField == null) {
+						if (params.getFullTypeName().startsWith("java.lang") || paramType.isEnum()) {
+							extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
+							extractedField.setModifier(AccessLevelModifier.PUBLIC);
+							extractedField.setFinal(false);
+							extractedField.setStatic(false);
+						}
+						else
+						{
+							System.out.println(params.getFullTypeName());
+						}
 
 					}
 				} else {
@@ -131,6 +136,7 @@ public class JavaMemberExtractor {
 	private ExtractedField getCodeField() {
 		// TODO Auto-generated method stub
 		ExtractedField codeField = new ExtractedField("additionalCode", "java.lang.String", 0);
+		
 		return codeField;
 	}
 
@@ -150,6 +156,7 @@ public class JavaMemberExtractor {
 		// TODO Auto-generated method stub
 		ExtractedField classNameField = new ExtractedField("generatedClassName", "java.lang.String", 0);
 		classNameField.setLiteralValue(extractedType.getOuterType());
+		classNameField.setFinal(true);
 		return classNameField;
 	}
 

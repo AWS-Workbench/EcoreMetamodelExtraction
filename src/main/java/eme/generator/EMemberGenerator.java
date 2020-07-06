@@ -118,12 +118,14 @@ public class EMemberGenerator {
 		ExtractedDataType dataType = getRelevantDataType(field);
 		EStructuralFeature representation = createFieldRepresentation(dataType);
 		representation.setName(field.getIdentifier()); // set name
+	   
 		if(field.getLiteralValue() != null)
 			representation.setDefaultValueLiteral(field.getLiteralValue());
 		representation.setChangeable(!(field.isFinal() && selector.allowsUnchangeable())); // make unchangeable if final
 		setUpperBound(representation, field);
 		typeGenerator.addDataType(representation, dataType, new TypeParameterSource(eClass)); // add type to attribute
 		eClass.getEStructuralFeatures().add(representation); // add feature to EClass
+		
 	}
 
 	/**
