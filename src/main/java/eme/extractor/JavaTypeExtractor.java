@@ -84,7 +84,7 @@ public class JavaTypeExtractor {
 		ExtractedType extractedType = null;
 		if (type.isClass()) {
 			extractedType = extractClass(type); // create class
-			if (extractedType.getName().startsWith("Cfn")) //!extractedType.getFullName().contains("Builder") || 
+			if (!extractedType.getFullName().contains("Builder") || extractedType.getName().startsWith("Cfn")) //!extractedType.getFullName().contains("Builder") || 
 				return null;
 
 			extractOuterType(type, extractedType); // extract outer type name

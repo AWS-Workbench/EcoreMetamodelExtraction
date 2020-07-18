@@ -74,6 +74,7 @@ public class JavaMemberExtractor {
 		ExtractedMethod extractedMethod;
 		// System.out.println(extractedType.getName());
 		String methodName; // name of the extracted method
+
 		for (IMethod method : type.getMethods()) { // for every method
 			ExtractedField extractedField = null;
 			methodName = getName(type) + "." + method.getElementName(); // build name
@@ -82,6 +83,7 @@ public class JavaMemberExtractor {
 			if (extractedMethod.isStatic() || extractedMethod.getMethodType() == MethodType.CONSTRUCTOR)
 				continue;
 
+			String allParamTypes = new String();
 			ITypeParameter[] typeParameters = method.getTypeParameters();
 			extractedMethod.setTypeParameters(dataTypeExtractor.extractTypeParameters(typeParameters, type));
 			for (ILocalVariable parameter : method.getParameters()) { // extract parameters:
@@ -90,24 +92,68 @@ public class JavaMemberExtractor {
 
 				IType paramType = type.getJavaProject().findType(params.getFullTypeName());
 
-				
+				int count = 0;
+				for (ILocalVariable parameterForName : method.getParameters()) {
+					ExtractedParameter paramsForName = dataTypeExtractor.extractParameter(parameterForName, method);
+
+					if (paramsForName.getType().equalsIgnoreCase("Map")
+							|| paramsForName.getType().equalsIgnoreCase("List"))
+						continue;
+
+					if (count == 0)
+						allParamTypes += "With" + paramsForName.getType();
+					else
+						allParamTypes += "And" + paramsForName.getType();
+
+					count++;
+
+				}
+				String typeString = params.getTypeString();
+				if (typeString.indexOf('<') != -1) {
+					typeString = typeString.substring(typeString.indexOf('<') + 1);
+					typeString = typeString.substring(0, typeString.indexOf('>'));
+				}
+				typeString = typeString.replace('.', '_');
+				typeString = typeString.replace(",", "__");
+				typeString = typeString.replace(" ", "");
+				typeString = "_" + typeString.trim() + "_";
+
 				if (paramType != null) {
+					String paramsFullName = params.getFullTypeName();
 					if (extractedField == null) {
-						if (params.getFullTypeName().startsWith("java.lang") || paramType.isEnum()) {
-							extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
+
+						if (paramsFullName.startsWith("java.lang") || paramType.isEnum()) {
+							extractedField = new ExtractedField(extractedMethod.getName() + typeString,
+									params.getFullTypeName(), 0);
 							extractedField.setModifier(AccessLevelModifier.PUBLIC);
 							extractedField.setFinal(false);
 							extractedField.setStatic(false);
-						}
-						else
-						{
-							System.out.println(params.getFullTypeName());
+						} else if (paramsFullName.startsWith("java.util.List")) {
+
+							System.out.println(params.getFullTypeName() + " " + params.getTypeString() + " "
+									+ params.getType() + " " + allParamTypes);
+
+							extractedType.addField(
+									getCollectionTypeField(extractedMethod, allParamTypes, typeString, "AsList"));
+
+						} else if (paramsFullName.startsWith("java.util.Map")) {
+							System.out.println(params.getFullTypeName() + " " + params.getTypeString() + " "
+									+ params.getType() + " " + allParamTypes);
+							extractedType.addField(
+									getCollectionTypeField(extractedMethod, allParamTypes, typeString, "AsMap"));
+						} else {
+							System.out.println(params.getFullTypeName() + " " + params.getTypeString() + " "
+									+ params.getType() + " " + allParamTypes);
+							extractedType.addField(
+									getCollectionTypeField(extractedMethod, allParamTypes, typeString, "AsReference"));
+
 						}
 
 					}
 				} else {
 					if (extractedField == null && params.getFullTypeName().startsWith("java.lang")) {
-						extractedField = new ExtractedField(extractedMethod.getName(), params.getFullTypeName(), 0);
+						extractedField = new ExtractedField(extractedMethod.getName() + typeString,
+								params.getFullTypeName(), 0);
 						extractedField.setModifier(AccessLevelModifier.PUBLIC);
 						extractedField.setFinal(false);
 						extractedField.setStatic(false);
@@ -133,10 +179,18 @@ public class JavaMemberExtractor {
 
 	}
 
+	private ExtractedField getCollectionTypeField(ExtractedMethod extractedMethod, String paramsDetails,
+			String typeString, String collectionSuffix) {
+		// TODO Auto-generated method stub
+		ExtractedField collectionTypeField = new ExtractedField(
+				extractedMethod.getName() + paramsDetails + typeString + collectionSuffix, "java.lang.String", 0);
+		return collectionTypeField;
+	}
+
 	private ExtractedField getCodeField() {
 		// TODO Auto-generated method stub
 		ExtractedField codeField = new ExtractedField("additionalCode", "java.lang.String", 0);
-		
+
 		return codeField;
 	}
 

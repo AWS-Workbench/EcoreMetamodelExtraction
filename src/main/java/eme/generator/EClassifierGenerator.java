@@ -194,6 +194,7 @@ public class EClassifierGenerator {
 			eEnum.getELiterals().add(literal); // add literal to enum.
 		}
 		typeGenerator.addTypeParameters(eEnum, extractedEnum); // add generic types.
+		
 		eEnum.setInstanceClassName(extractedEnum.getFullName());
 		return eEnum;
 	}

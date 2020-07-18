@@ -28,6 +28,7 @@ public class EPackageGenerator {
 	private IntermediateModel model;
 	private final ExtractionProperties properties;
 	private final SelectionHelper selector;
+	private EPackage packageRoot;
 
 	/**
 	 * Basic constructor, sets the properties.
@@ -49,7 +50,8 @@ public class EPackageGenerator {
 	 */
 	public EPackage generate(IntermediateModel model) {
 		this.model = model; // set model
-		EPackage eRoot = generateEPackage(model.getRoot()); // generate base model:
+		generateEPackage(model.getRoot()); // generate base model:
+		EPackage eRoot = packageRoot ;
 		classGenerator.completeEClassifiers(); // complete EClasses
 		selector.generateReport(); // print reports
 		return eRoot; // return Ecore metamodel root package
@@ -62,6 +64,7 @@ public class EPackageGenerator {
 		for (ExtractedPackage subpackage : extractedPackage.getSubpackages()) { // for all packages
 			if (selector.allowsGenerating(subpackage)) { // if is allowed to
 				ePackage.getESubpackages().add(generateEPackage(subpackage)); // extract
+				//generateEPackage(subpackage);
 			}
 		}
 	}
@@ -91,6 +94,9 @@ public class EPackageGenerator {
 		EPackage ePackage;
 		if (extractedPackage.isRoot()) { // set root name & prefix:
 			ePackage = generateRoot();
+			if(packageRoot == null)
+				packageRoot = ePackage;
+			
 		} else { // set name & prefix for non root packages:
 			ePackage = ecoreFactory.createEPackage();
 			ePackage.setName(extractedPackage.getName());

@@ -53,7 +53,9 @@ public final class JDTUtil {
     	String fullName = type.getFullyQualifiedName('.');
     	if(fullName.endsWith("Builder")) {
     		int i = fullName.lastIndexOf('.');
-    		fullName = fullName.substring(0, i) + fullName.substring(i+1);
+    		String packageName = type.getPackageFragment().getElementName();
+    		String parentName = packageName.substring(packageName.lastIndexOf('.') + 1);
+    		fullName = fullName.substring(0, i) + fullName.substring(i+1) + "_" + parentName;
     	}
         return fullName;
     }
